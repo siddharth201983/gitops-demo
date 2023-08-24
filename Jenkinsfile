@@ -74,18 +74,10 @@ pipeline {
                 }
             }
         }
-        stage("Trigger config change pipeline"){
+        stage("Push the changed deployment file to git"){
             steps{
                 script{
-                    sh """
-                        git config --global user.name "siddharth201983"
-                        git config --global user.email "sharma.siddharth2009@gmail.com"
-                        git add deployment.yml
-                        git commit -m "updated the deployment file"
-                    """
-                    withCredentials([gitUsernamePassword(credentialsId: 'gitcred', gitToolName: 'Default')]) {
-                        sh "git push https://github.com/siddharth201983/gitops-demo.git master"
-                    }
+                    sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'http://100.25.137.130:8080/job/gitops-cd/buildWithParameters?token=gitops-config'"
                 }
             }
         }
