@@ -7,6 +7,7 @@ pipeline {
         IMAGE_TAG = "${BUILD_NUMBER}"
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/${APP_NAME}"
         REGISTRY_CREDS = 'dockerhub'
+        JENKINS_API_TOKEN = credentials('JENKINS_API_TOKEN')
     }
     stages{
         stage("Cleanup Workspace"){
@@ -74,7 +75,7 @@ pipeline {
                 }
             }
         }
-        stage("Push the changed deployment file to git"){
+        stage("Trigger gitops config pipeline"){
             steps{
                 script{
                     sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'http://100.25.137.130:8080/job/gitops-cd/buildWithParameters?token=gitops-config'"
